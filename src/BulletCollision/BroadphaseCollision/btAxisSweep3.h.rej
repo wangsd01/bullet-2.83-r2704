@@ -1,0 +1,13 @@
+--- bullet-2.82-r2704/src/BulletCollision/BroadphaseCollision/btAxisSweep3.h    2016-10-12 16:39:06.314991696 -0400
++++ bullet-2.82-r2704-patched/src/BulletCollision/BroadphaseCollision/btAxisSweep3.h    2016-10-12 16:38:55.742991000 -0400
+@@ -362,8 +362,8 @@ m_raycastAccelerator(0)
+ 
+    if (!m_pairCache)
+    {
+-       void* ptr = btAlignedAlloc(sizeof(btHashedOverlappingPairCache),16);
+-       m_pairCache = new(ptr) btHashedOverlappingPairCache();
++       void* ptr = btAlignedAlloc(sizeof(btSortedOverlappingPairCache),16);
++       m_pairCache = new(ptr) btSortedOverlappingPairCache();
+        m_ownsPairCache = true;
+    }
+ 

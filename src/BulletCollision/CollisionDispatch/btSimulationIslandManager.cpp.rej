@@ -1,0 +1,53 @@
+--- bullet-2.82-r2704/src/BulletCollision/CollisionDispatch/btSimulationIslandManager.cpp   2016-10-12 16:39:48.950992424 -0400
++++ bullet-2.82-r2704-patched/src/BulletCollision/CollisionDispatch/btSimulationIslandManager.cpp   2016-10-12 16:39:36.938992000 -0400
+@@ -192,10 +192,40 @@ inline    int getIslandId(const btPersisten
+ class btPersistentManifoldSortPredicate
+ {
+    public:
++       const btCollisionObjectArray& collisionObjects;
++
++       btPersistentManifoldSortPredicate(btCollisionObjectArray& b): collisionObjects(b)
++       {
++
++       }
++
++       int body_id(const btCollisionObject* obj) const
++       {
++           int id=0;
++           while(true)
++           {
++               if(obj==collisionObjects[id])
++                   return id;
++               id++;
++           }
++       }
+ 
+        SIMD_FORCE_INLINE bool operator() ( const btPersistentManifold* lhs, const btPersistentManifold* rhs ) const
+        {
+-           return getIslandId(lhs) < getIslandId(rhs);
++
++           if(body_id(lhs->getBody0())<body_id(rhs->getBody0()))
++               return true;
++           else if(body_id(lhs->getBody0())>body_id(rhs->getBody0()))
++               return false;
++           else
++           {
++               if(body_id(lhs->getBody1())<body_id(rhs->getBody1()))
++                   return true;
++               else
++                   return false;
++           }
++
++           // return getIslandId(lhs) < getIslandId(rhs);
+        }
+ };
+ 
+@@ -379,7 +409,7 @@ void btSimulationIslandManager::buildAnd
+ 
+        //tried a radix sort, but quicksort/heapsort seems still faster
+        //@todo rewrite island management
+-       m_islandmanifold.quickSort(btPersistentManifoldSortPredicate());
++       m_islandmanifold.quickSort(btPersistentManifoldSortPredicate(collisionObjects));
+        //m_islandmanifold.heapSort(btPersistentManifoldSortPredicate());
+ 
+        //now process all active islands (sets of manifolds for now)
